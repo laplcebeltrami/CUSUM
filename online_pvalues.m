@@ -3,7 +3,17 @@ function pvalue = online_pvalue(stat, observed)
 %
 % Computes the pvalue based on the collection of statistics value 
 % and observation sequentically. It is needed for various applications
-% where we need to know how p-values change. The seqencial p-value 
+% where we need to know how p-values change. 
+% 
+% INPUT
+%       stat:     sequence of test statistic of size n (# of statistics) x l (# of variables/connections)
+%       observed: observed test statistic
+%
+% OUTPUT
+%       pvalue  : sequence of p-values    
+% 
+% 
+% The seqencial p-value 
 % computation algorithm is given in 
 %
 % [1] Chung, M.K., Xie, L., Huang, S.-G., Wang, Y., Yan, J., Shen, L. 2019. 
@@ -47,14 +57,14 @@ l=size(stat,2); % numver of variables/connections
 
 pvalue=zeros(n,l);
 
-if observed>=mean(stat)
+if observed>=mean(stat) %right tail
     
     pvalue(1,:)= (stat(1)>=observed); %initial p-value. It is either 0 or 1.
     for i=2:n
         pvalue(i,:) = (pvalue(i-1,:) * (i-1) + (stat(i,:)>=observed))/i;
     end
     
-else %observed<0
+else %left tail
     
     pvalue(1,:)= (stat(1)<=observed); %initial p-value. It is either 0 or 1.
     for i=2:n
@@ -63,3 +73,14 @@ else %observed<0
     
 end
 
+%convergence plot for p-value
+figure; 
+set(gcf, 'Position', [400 400 600 250])
+
+
+plot(pvalue(1:10000),'k','LineWidth', 2)
+xlabel ('Number of permutations'); ylabel('p-value')
+whitebg(gcf,'w');
+set(gcf,'Color','w','InvertHardcopy','off');
+
+set(gca, 'fontsize',16) 
